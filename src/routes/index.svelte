@@ -72,6 +72,7 @@
 
   .schedule-item {
     padding: 2px 5px;
+    font-size: 1.25rem;
 
     &:focus,
     &:hover,
@@ -79,7 +80,7 @@
       background-color: var(--hover-colour);
 
       &::marker {
-        color: var(--primary-colour);
+        color: var(--theme-colour);
       }
     }
   }
