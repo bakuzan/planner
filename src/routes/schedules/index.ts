@@ -1,5 +1,7 @@
 import db from '$lib/database';
 import { formatDate } from '$lib/formatters';
+import generateDefaultBlocks from '$lib/generateDefaultBlocks';
+import type { ISlot } from '$lib/interfaces/ITimeSlot';
 
 /** @type {import('@sveltejs/kit').RequestHandler} */
 export async function get() {
@@ -34,11 +36,11 @@ export async function post({ request }) {
     };
   }
 
-  const statement = db.prepare(
-    `INSERT INTO Schedule("name", "createdAt", "isCurrent") VALUES (@name, @createdAt, @isCurrent)`
+  const insertSchedule = db.prepare(
+    `INSERT INTO Schedule(name, createdAt, isCurrent) VALUES (@name, @createdAt, @isCurrent)`
   );
 
-  const info = statement.run({
+  const info = insertSchedule.run({
     name,
     createdAt: formatDate(),
     isCurrent: 0
@@ -52,14 +54,24 @@ export async function post({ request }) {
     };
   }
 
-  // todo insert timeslots...
-  // db.prepare(`INSERT INTO TimeSlot`).run();
+  const scheduleId = info.lastInsertRowid as number;
+  const insertSlot = db.prepare(
+    `INSERT INTO TimeSlot(slot, scheduleId, activityId) VALUES(@slot, @scheduleId, @activityId)`
+  );
+
+  const insertSlots = db.transaction((slots: ISlot[]) => {
+    for (const slot of slots) {
+      insertSlot.run(slot);
+    }
+  });
+
+  insertSlots(generateDefaultBlocks(scheduleId));
 
   // redirect to the newly created item
   return {
     status: 303,
     headers: {
-      location: `/schedules/${info.lastInsertRowid}`
+      location: `/schedules/${scheduleId}`
     }
   };
 }
