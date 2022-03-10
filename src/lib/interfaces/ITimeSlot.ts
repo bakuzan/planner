@@ -7,3 +7,7 @@ export interface ISlot {
 export interface ITimeSlot extends ISlot {
   id: number;
 }
+
+export interface IBlock extends Omit<ITimeSlot, 'activityId'> {
+  activityId: number | string;
+}
