@@ -39,7 +39,7 @@
     "cookie": "^0.4.2"
   },
   "lint-staged": {
-    "*.{ts,js,svelte}": "eslint --cache --fix",
-    "*.{ts,js,css,md,svelte}": "prettier --write"
+    "*.{ts,js,svelte}": "npm run lint",
+    "*.{ts,js,css,md,svelte}": "npm run format"
   }
 }
