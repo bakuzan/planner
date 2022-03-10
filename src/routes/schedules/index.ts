@@ -3,7 +3,9 @@ import { formatDate } from '$lib/formatters';
 
 /** @type {import('@sveltejs/kit').RequestHandler} */
 export async function get() {
-  const items = await db.prepare(`SELECT * FROM Schedule`).all();
+  const items = db
+    .prepare(`SELECT * FROM Schedule ORDER BY createdAt DESC`)
+    .all();
 
   return {
     body: { items }
@@ -49,6 +51,9 @@ export async function post({ request }) {
       body: { errors: [`Create Schedule Failed`] }
     };
   }
+
+  // todo insert timeslots...
+  // db.prepare(`INSERT INTO TimeSlot`).run();
 
   // redirect to the newly created item
   return {

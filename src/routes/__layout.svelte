@@ -1,6 +1,6 @@
 <script context="module">
   import '$styles/reset.scss';
-  import '$styles/_global.scss';
+  // import '$styles/_global.scss';
 </script>
 
 <nav id="appTopbar" class="app-bar">
@@ -20,6 +20,9 @@
 </footer>
 
 <style lang="scss">
+  // @import '../styles/reset.scss';
+  @import '../styles/_global.scss';
+
   .app-bar {
     background-color: var(--theme-colour);
     color: var(--constrast-colour);

@@ -1,20 +1,37 @@
+<script lang="ts" context="module">
+  import type { IActivity } from '$lib/interfaces/IActivity';
+  import type { IDropdownOption } from '$lib/interfaces/IDropdownOption';
+  import type { IScheduleWithSlots } from '$lib/interfaces/ISchedule';
+
+  export async function load(event) {
+    const response = await event.fetch('/activities/__data.json', {
+      accept: 'application/json'
+    });
+
+    const data = await response.json();
+
+    return {
+      ...event,
+      props: {
+        ...event.props,
+        options: data.items.map((x: IActivity) => ({
+          text: x.name,
+          value: x.id
+        }))
+      }
+    };
+  }
+</script>
+
 <script lang="ts">
-  export let item;
+  export let item: IScheduleWithSlots;
+  export let options: IDropdownOption[];
 
   export let blocks = Array(24)
     .fill(1)
     .map((_, i) => i);
 
-  export let options = [
-    { value: 1, text: 'Anime' },
-    { value: 2, text: 'Cartoon' },
-    { value: 3, text: 'Manga' },
-    { value: 4, text: 'Comics' },
-    { value: 5, text: 'Eat' },
-    { value: 6, text: 'Sleep' }
-  ];
-
-  console.log('Schedule > ', item);
+  console.log('Schedule > ', item, options);
 
   function formatNumberAsTime(num: number) {
     const begin = `${num}`.padStart(2, '0');
@@ -32,20 +49,18 @@
   id="scheduler"
   name="scheduler"
   method="post"
-  action="/schedule/{item.id}?_method=PUT"
+  action="/schedules/{item.id}?_method=PUT"
   autocomplete="off"
 >
   <div>
-    <input type="text" name="dayName" placeholder="Enter name for day" />
-
-    <select id="eventOption" name="eventOption" placeholder="Select an event">
-      <option value="">Select an event</option>
-      {#each options as option}
-        <option value={option.value}>
-          {option.text}
-        </option>
-      {/each}
-    </select>
+    <input
+      type="text"
+      name="name"
+      value={item.name}
+      required
+      aria-label="Schedule name"
+      placeholder="Enter a schedule name"
+    />
     <button type="submit" class="button button--submit"> Update </button>
   </div>
   <div class="times">
@@ -54,10 +69,36 @@
         <div class="times__number">{formatNumberAsTime(block)}</div>
         <div class="block">
           <div class="block__half">
-            <input type="checkbox" name={`block_${block}_0`} />
+            <select
+              id={`eventOption_${block}_30`}
+              name={`eventOption_${block}_0`}
+              placeholder="Select an event"
+              aria-label="Select an event"
+              class="event-option"
+            >
+              <option value="">Select an event</option>
+              {#each options as option}
+                <option value={option.value}>
+                  {option.text}
+                </option>
+              {/each}
+            </select>
           </div>
           <div class="block__half">
-            <input type="checkbox" name={`block_${block}_30`} />
+            <select
+              id={`eventOption_${block}_30`}
+              name={`eventOption_${block}_30`}
+              placeholder="Select an event"
+              aria-label="Select an event"
+              class="event-option"
+            >
+              <option value="">Select an event</option>
+              {#each options as option}
+                <option value={option.value}>
+                  {option.text}
+                </option>
+              {/each}
+            </select>
           </div>
         </div>
       </div>
@@ -103,5 +144,10 @@
       width: 100%;
       height: 50%;
     }
+  }
+
+  .event-option {
+    max-width: 100%;
+    border: none;
   }
 </style>
