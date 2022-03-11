@@ -3,20 +3,11 @@
   --theme-colour: #66023c;
   --constrast-colour: #fff;
 
-  --hover-colour: #f1f1f1;
+  --hover-colour: #ffe876;
+  --outline-colour: #ffd700;
 
   --block-border-colour: #000;
 
   font-size: 16px;
   font-family: 'Lucida Console', Consolas, monospace;
-}
-
-a {
-  text-decoration: none;
-
-  &:focus,
-  &:hover,
-  &:active {
-    text-decoration: underline;
-  }
 }

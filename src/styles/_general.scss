@@ -1,0 +1,49 @@
+a {
+  text-decoration: none;
+
+  &:focus,
+  &:hover,
+  &:active {
+    text-decoration: underline;
+  }
+}
+
+.button {
+  height: 30px;
+  border: 1px solid transparent;
+  padding: 2px 5px;
+  cursor: pointer;
+
+  &--submit {
+    background-color: var(--theme-colour);
+    color: var(--constrast-colour);
+    outline-color: var(--outline-colour, #00f);
+
+    &:focus,
+    &:hover,
+    &:active {
+      border-color: var(--hover-colour, #00f);
+    }
+  }
+}
+
+.button-group {
+  margin: 0 5px;
+  align-self: self-end;
+}
+
+input {
+  border-color: var(--theme-colour);
+  outline-color: var(--theme-colour);
+}
+
+.form {
+  display: flex;
+  align-items: center;
+}
+
+.text-input {
+  display: inline-flex;
+  flex-direction: column;
+  width: fit-content;
+}

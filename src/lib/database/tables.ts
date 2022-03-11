@@ -5,8 +5,10 @@ const plannerTable = `CREATE TABLE IF NOT EXISTS Schedule(
     "isCurrent" TINYINT(1)   NOT NULL DEFAULT 0);`;
 
 const activityTable = `CREATE TABLE IF NOT EXISTS Activity(
-    "id"        INTEGER      PRIMARY KEY, 
-    "name"      VARCHAR(255) NOT NULL UNIQUE);`;
+    "id"                INTEGER      PRIMARY KEY, 
+    "name"              VARCHAR(255) NOT NULL UNIQUE,
+    "backgroundColour"  VARCHAR(255) NOT NULL,
+    "colour"            VARCHAR(255) NOT NULL);`;
 
 const timeSlotTable = `CREATE TABLE IF NOT EXISTS TimeSlot(
     "id"            INTEGER      PRIMARY KEY, 

@@ -1,4 +1,5 @@
 <script lang="ts" context="module">
+  /** @type {import('@sveltejs/kit').Load} */
   export async function load(event) {
     const response = await event.fetch('/schedules/__data.json', {
       accept: 'application/json'
@@ -29,16 +30,24 @@
       action="/schedules"
       autocomplete="off"
     >
-      <input
-        id="name"
-        type="text"
-        name="name"
-        placeholder="Schedule Name"
-        required
-      />
-      <button type="submit" class="button button--submit"
-        >Create schedule</button
-      >
+      <div class="form">
+        <label class="text-input">
+          Schedule Name
+          <input
+            id="name"
+            type="text"
+            name="name"
+            placeholder="Enter Unique Schedule Name"
+            required
+          />
+        </label>
+
+        <div class="button-group">
+          <button type="submit" class="button button--submit"
+            >Create schedule</button
+          >
+        </div>
+      </div>
     </form>
   </div>
   <div>
@@ -67,6 +76,7 @@
 
     &--schedules {
       list-style-type: disclosure-closed;
+      max-width: 400px;
     }
   }
 

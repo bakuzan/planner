@@ -1,6 +1,5 @@
 <script lang="ts" context="module">
   import type { IActivity } from '$lib/interfaces/IActivity';
-  import type { IDropdownOption } from '$lib/interfaces/IDropdownOption';
   import type { IScheduleWithSlots } from '$lib/interfaces/ISchedule';
   import type { ITimeSlot, IBlock } from '$lib/interfaces/ITimeSlot';
 
@@ -19,6 +18,7 @@
     return p;
   }
 
+  /** @type {import('@sveltejs/kit').Load} */
   export async function load(event) {
     const response = await event.fetch('/activities/__data.json', {
       accept: 'application/json'
@@ -27,8 +27,9 @@
     const data = await response.json();
 
     const slots = event.props.item.slots;
+    const emptyMap = new Map<string, ITimeSlot[]>([]);
     const blocks = Array.from(
-      slots.reduce(reduceSlotsByHour, new Map<string, ITimeSlot[]>([])).values()
+      slots.reduce(reduceSlotsByHour, emptyMap).values()
     );
 
     return {
@@ -36,10 +37,7 @@
       props: {
         ...event.props,
         blocks,
-        options: data.items.map((x: IActivity) => ({
-          text: x.name,
-          value: x.id
-        }))
+        options: data.items
       }
     };
   }
@@ -47,10 +45,23 @@
 
 <script lang="ts">
   export let item: IScheduleWithSlots;
-  export let options: IDropdownOption[];
+  export let options: IActivity[];
   export let blocks: IBlock[][];
 
-  console.log('Schedule > ', item, options, blocks);
+  function getActivityColours(block: IBlock) {
+    if (!block.activityId) {
+      return '';
+    }
+
+    const activity = options.find((x) => x.id === block.activityId);
+    const background = activity.backgroundColour || 'transparent';
+    const colour = activity.colour || '#000';
+
+    return `background-color: ${background}; color: ${colour};`;
+  }
+
+  $: console.log('Schedule > ', item);
+  $: console.log('  Blocks > ', blocks);
 </script>
 
 <svelte:head>
@@ -66,16 +77,22 @@
   action="/schedules/{item.id}?_method=PUT"
   autocomplete="off"
 >
-  <div>
-    <input
-      type="text"
-      name="name"
-      value={item.name}
-      required
-      aria-label="Schedule name"
-      placeholder="Enter a schedule name"
-    />
-    <button type="submit" class="button button--submit"> Update </button>
+  <div class="form">
+    <label class="text-input">
+      Schedule Name
+      <input
+        type="text"
+        name="name"
+        value={item.name}
+        required
+        aria-label="Schedule name"
+        placeholder="Enter a schedule name"
+      />
+    </label>
+
+    <div class="button-group">
+      <button type="submit" class="button button--submit"> Update </button>
+    </div>
   </div>
   <div class="times">
     {#each blocks as slots}
@@ -83,24 +100,27 @@
         <div class="times__number">{slots[0].slot}</div>
         <div class="block">
           {#each slots as half}
-            <div class="block__half">
+            <div class="block__half" style={getActivityColours(half)}>
               <select
                 id={`eventOption_${half.slot}`}
                 name={`eventOption_${half.slot}`}
                 placeholder="Select an event"
                 aria-label="Select an event"
-                class="event-option"
+                class="event-selector"
                 bind:value={half.activityId}
               >
-                <option value="" selected={'' === half.activityId}
-                  >Select an event</option
+                <option
+                  class="event-selector__option"
+                  value=""
+                  selected={'' === half.activityId}>Select an event</option
                 >
                 {#each options as option}
                   <option
-                    value={option.value}
-                    selected={option.value === half.activityId}
+                    class="event-selector__option"
+                    value={option.id}
+                    selected={option.id === half.activityId}
                   >
-                    {option.text}
+                    {option.name}
                   </option>
                 {/each}
               </select>
@@ -141,7 +161,6 @@
 
   .block {
     height: var(--block-height);
-    // border: 1px dashed var(--block-border-colour); // todo remove when more fleshed out
 
     &__half {
       width: 100%;
@@ -149,8 +168,14 @@
     }
   }
 
-  .event-option {
+  .event-selector {
     max-width: 100%;
     border: none;
+    background: transparent;
+    color: inherit;
+
+    &__option {
+      color: var(--base-colour, #000);
+    }
   }
 </style>

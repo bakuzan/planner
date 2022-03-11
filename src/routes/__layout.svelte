@@ -1,8 +1,3 @@
-<script context="module">
-  import '$styles/reset.scss';
-  // import '$styles/_global.scss';
-</script>
-
 <nav id="appTopbar" class="app-bar">
   <a class="app-bar__home" href="/">Planner</a>
 </nav>
@@ -20,8 +15,11 @@
 </footer>
 
 <style lang="scss">
-  // @import '../styles/reset.scss';
-  @import '../styles/_global.scss';
+  :global {
+    @import '../styles/_reset.scss';
+    @import '../styles/_global.scss';
+    @import '../styles/_general.scss';
+  }
 
   .app-bar {
     background-color: var(--theme-colour);
