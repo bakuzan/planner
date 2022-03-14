@@ -18,7 +18,7 @@
     return p;
   }
 
-  /** @type {import('@sveltejs/kit').Load} */
+  /** @type {import('./[id]').Load} */
   export async function load(event) {
     const response = await event.fetch('/activities/__data.json', {
       accept: 'application/json'
@@ -47,6 +47,7 @@
   export let item: IScheduleWithSlots;
   export let options: IActivity[];
   export let blocks: IBlock[][];
+  export let isCurrent = !!item.isCurrent;
 
   function getActivityColours(block: IBlock) {
     if (!block.activityId) {
@@ -60,8 +61,8 @@
     return `background-color: ${background}; color: ${colour};`;
   }
 
-  $: console.log('Schedule > ', item);
-  $: console.log('  Blocks > ', blocks);
+  // $: console.log('Schedule > ', item);
+  // $: console.log('  Blocks > ', blocks);
 </script>
 
 <svelte:head>
@@ -83,11 +84,22 @@
       <input
         type="text"
         name="name"
-        value={item.name}
+        bind:value={item.name}
         required
         aria-label="Schedule name"
         placeholder="Enter a schedule name"
       />
+    </label>
+
+    <label class="checkbox is-current">
+      <input
+        class="checkbox__input"
+        type="checkbox"
+        name="isCurrent"
+        bind:checked={isCurrent}
+        aria-label="Is current"
+      />
+      <span class="checkbox__text">Is Current</span>
     </label>
 
     <div class="button-group">
@@ -144,6 +156,10 @@
 <style scoped lang="scss">
   :root {
     --block-height: 100px;
+  }
+
+  .is-current {
+    margin-right: 10px;
   }
 
   .times {

@@ -17,8 +17,19 @@
 <style lang="scss">
   :global {
     @import '../styles/_reset.scss';
+    @import '../styles/_mixins.scss';
     @import '../styles/_global.scss';
     @import '../styles/_general.scss';
+
+    .page-title {
+      font-size: 2rem;
+      margin: 0;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      margin: 0;
+    }
   }
 
   .app-bar {

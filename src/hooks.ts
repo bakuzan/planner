@@ -8,7 +8,7 @@ export const handle = async ({ event, resolve }) => {
 
   // Getting cookies from request headers - all requests have cookies on themimport clientPromise from '$lib/db'
   const cookies = cookie.parse(event.request.headers.cookie || '');
-  console.log('handle cookies > ', cookies);
+  // console.log('handle cookies > ', cookies);
 
   return await resolve(event);
 };

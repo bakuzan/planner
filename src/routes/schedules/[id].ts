@@ -1,9 +1,10 @@
 import db from '$lib/database';
 import type { ITimeSlot } from '$lib/interfaces/ITimeSlot';
+import { fromBoolToBit } from '$lib/utils';
 
 const SCHEDULE_FORM_TIMESLOT_PREPEND = 'eventOption_';
 
-/** @type {import('@sveltejs/kit').RequestHandler} */
+/** @type {import('./[id]').RequestHandler} */
 export async function get({ params }) {
   const item = db.prepare(`SELECT * FROM Schedule WHERE id = ?`).get(params.id);
 
@@ -23,7 +24,7 @@ export async function get({ params }) {
   };
 }
 
-/** @type {import('@sveltejs/kit').RequestHandler} */
+/** @type {import('./[id]').RequestHandler} */
 export async function put({ params, request }) {
   const formData = await request.formData();
   const data = Object.fromEntries(formData);
@@ -48,9 +49,15 @@ export async function put({ params, request }) {
   }
 
   const name = data.name.trim();
+  const isCurrent = fromBoolToBit(data.isCurrent);
   const info = db
-    .prepare(`UPDATE Schedule SET name = @name WHERE id = @scheduleId`)
-    .run({ name, scheduleId });
+    .prepare(
+      `UPDATE Schedule 
+          SET name = @name
+            , isCurrent = @isCurrent 
+        WHERE id = @scheduleId`
+    )
+    .run({ name, isCurrent, scheduleId });
 
   if (!info.changes) {
     // return validation errors
@@ -92,10 +99,8 @@ export async function put({ params, request }) {
   };
 }
 
-/** @type {import('@sveltejs/kit').RequestHandler} */
+/** @type {import('./[id]').RequestHandler} */
 export async function del({ params }) {
-  console.log('delete...', params);
-
   const slotsInfo = db
     .prepare(`DELETE FROM TimeSlot WHERE scheduleId = ?`)
     .run(params.id);

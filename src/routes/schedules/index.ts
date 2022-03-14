@@ -1,16 +1,63 @@
 import db from '$lib/database';
 import { formatDate } from '$lib/formatters';
 import generateDefaultBlocks from '$lib/generateDefaultBlocks';
-import type { ISlot } from '$lib/interfaces/ITimeSlot';
+import type {
+  ISchedule,
+  IScheduleWithSlotRanges
+} from '$lib/interfaces/ISchedule';
+import type { ISlot, ITimeSlotRange } from '$lib/interfaces/ITimeSlot';
 
 /** @type {import('@sveltejs/kit').RequestHandler} */
-export async function get() {
-  const items = db
+export async function get({ url }) {
+  const includeCurrentItems = url.searchParams.get('includeCurrentItems');
+
+  const items: ISchedule[] = db
     .prepare(`SELECT * FROM Schedule ORDER BY createdAt DESC`)
     .all();
 
+  let currentItems: IScheduleWithSlotRanges[] = [];
+  if (includeCurrentItems) {
+    const currents = items.filter((x) => x.isCurrent);
+    const currentSlots: ITimeSlotRange[] = db
+      .prepare(
+        `SELECT t.*, a.name activityName, a.backgroundColour, t.slot 'endSlot', 1 'slotCount'
+           FROM TimeSlot t 
+           JOIN Schedule s ON t.scheduleId = s.id
+           LEFT JOIN Activity a ON t.activityId = a.id
+          WHERE s.isCurrent = 1
+          ORDER BY t.scheduleId, t.slot`
+      )
+      .all();
+
+    currentItems = currents.map((x) => ({
+      ...x,
+      slots: currentSlots
+        .filter((c) => c.scheduleId === x.id)
+        .reduce((p, c, i, a) => {
+          const prevIndex = p.length - 1;
+          const prev = p[prevIndex];
+
+          if (prev && prev.activityId === c.activityId) {
+            prev.endSlot = c.slot;
+            prev.slotCount += 1;
+            return [...p];
+          } else if (prev) {
+            prev.endSlot = c.slot;
+          }
+
+          const nextSlot = a[i + 1];
+          const endSlot = nextSlot ? nextSlot.slot : '00:00';
+
+          return [
+            ...p,
+            { ...c, endSlot: c.slot !== c.endSlot ? c.endSlot : endSlot }
+          ];
+        }, [] as ITimeSlotRange[])
+    }));
+  }
+
   return {
-    body: { items }
+    body: { items, currentItems }
   };
 }
 

@@ -1,4 +1,4 @@
-import type { ITimeSlot } from './ITimeSlot';
+import type { ITimeSlot, ITimeSlotRange } from './ITimeSlot';
 
 export interface ISchedule {
   id: number;
@@ -9,4 +9,8 @@ export interface ISchedule {
 
 export interface IScheduleWithSlots extends ISchedule {
   slots: ITimeSlot[];
+}
+
+export interface IScheduleWithSlotRanges extends ISchedule {
+  slots: ITimeSlotRange[];
 }

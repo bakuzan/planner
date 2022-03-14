@@ -1,3 +1,5 @@
+@import './_mixins.scss';
+
 a {
   text-decoration: none;
 
@@ -27,11 +29,6 @@ a {
   }
 }
 
-.button-group {
-  margin: 0 5px;
-  align-self: self-end;
-}
-
 input {
   border-color: var(--theme-colour);
   outline-color: var(--theme-colour);
@@ -39,11 +36,67 @@ input {
 
 .form {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
+
+  @include respondTo(xxs) {
+    flex-wrap: wrap;
+  }
+}
+
+.button-group {
+  margin: 0 25px;
+
+  @include respondTo(xxs) {
+    margin: 20px 0 0;
+  }
 }
 
 .text-input {
   display: inline-flex;
   flex-direction: column;
   width: fit-content;
+  min-width: 300px;
+}
+
+// checkbox
+.checkbox {
+  display: inline-flex;
+  justify-content: flex-start;
+  align-items: flex-end;
+  padding: 2px;
+  cursor: pointer;
+}
+
+.checkbox__input {
+  appearance: none;
+  transition: all 0.3s;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+  margin: 0 5px;
+
+  &::before,
+  &:checked::before {
+    color: var(--base-colour, #000);
+    transition: all 0.3s;
+    cursor: pointer;
+    z-index: 1;
+  }
+
+  &::before {
+    content: '\2610\FE0E';
+    font-size: 2em;
+  }
+  &:disabled::before {
+    content: '\274c\FE0E';
+    color: var(--disabled-colour, #666);
+    cursor: default;
+  }
+  &:checked::before {
+    content: '\2611\FE0E';
+    color: var(--success-colour, var(--theme-colour, #0f0));
+  }
 }
