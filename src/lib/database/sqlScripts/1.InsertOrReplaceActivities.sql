@@ -11,4 +11,4 @@ VALUES (1,'Sleep', '#666','#fff'),
         (10,'Gaming', '#800080','#fff'),
         (11,'Coding', '#674ea7', '#fff'),
         (12, 'Karate', '#073763', '#fff'),
-        (13, 'Passing', '#a61c00', '#fff')
+        (13, 'Passing', '#a61c00', '#fff');
