@@ -1,10 +1,7 @@
-import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const targetFolder = path.resolve(path.join(__dirname, './sqlScripts'));
+const targetFolder = 'src/lib/database/sqlScripts';
 
 export function readSQLFiles() {
   try {

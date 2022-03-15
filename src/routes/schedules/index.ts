@@ -36,22 +36,18 @@ export async function get({ url }) {
         .reduce((p, c, i, a) => {
           const prevIndex = p.length - 1;
           const prev = p[prevIndex];
+          const next = a[i + 1];
 
           if (prev && prev.activityId === c.activityId) {
-            prev.endSlot = c.slot;
+            prev.endSlot = next ? c.slot : '00:00';
             prev.slotCount += 1;
             return [...p];
           } else if (prev) {
             prev.endSlot = c.slot;
           }
 
-          const nextSlot = a[i + 1];
-          const endSlot = nextSlot ? nextSlot.slot : '00:00';
-
-          return [
-            ...p,
-            { ...c, endSlot: c.slot !== c.endSlot ? c.endSlot : endSlot }
-          ];
+          const endSlot = next ? next.slot : '00:00';
+          return [...p, { ...c, endSlot }];
         }, [] as ITimeSlotRange[])
     }));
   }

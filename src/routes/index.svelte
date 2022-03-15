@@ -45,8 +45,12 @@
               {#each item.slots as ts}
                 <li
                   class="slot-item"
-                  aria-label={`${ts.activityName} from ${ts.slot} until ${ts.endSlot}`}
-                  title={`${ts.activityName} from ${ts.slot} until ${ts.endSlot}`}
+                  aria-label={`${ts.activityName ?? 'Nothing set'} from ${
+                    ts.slot
+                  } until ${ts.endSlot}`}
+                  title={`${ts.activityName ?? 'Nothing set'} from ${
+                    ts.slot
+                  } until ${ts.endSlot}`}
                   style={`background-color: ${ts.backgroundColour}; --slot-count: ${ts.slotCount};`}
                   data-slot-count={ts.slotCount}
                 />
