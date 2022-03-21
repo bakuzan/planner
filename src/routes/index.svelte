@@ -12,20 +12,40 @@
 
     return {
       ...event,
-      props: { items: data.items, currentItems: data.currentItems }
+      props: {
+        ...event.props,
+        items: data.items,
+        currentItems: data.currentItems
+      }
     };
   }
 </script>
 
 <script lang="ts">
+  import { goto } from '$app/navigation';
+
+  import ErrorBlock from '$lib/components/ErrorBlock.svelte';
   import type {
     ISchedule,
     IScheduleWithSlotRanges
   } from '$lib/interfaces/ISchedule';
+  import { enhance } from '$lib/formEnhancer';
+
+  function onDone(result, form: HTMLFormElement) {
+    goto(`/schedules/${result.item.id}`);
+    form.reset();
+  }
+
+  function onError(err: Error, form: HTMLFormElement) {
+    console.log('Error : ', err, err.message);
+    errors = JSON.parse(err.message).errors;
+    form.reset();
+  }
 
   export let items: ISchedule[];
   export let currentItems: IScheduleWithSlotRanges[];
-  console.log('Home ... ', items, currentItems);
+  export let errors: string[];
+  console.log('Home ... ', items, currentItems, errors);
 </script>
 
 <svelte:head>
@@ -68,6 +88,7 @@
       method="post"
       action="/schedules"
       autocomplete="off"
+      use:enhance={{ done: onDone, error: onError }}
     >
       <div class="form">
         <label class="text-input">
@@ -87,6 +108,7 @@
           >
         </div>
       </div>
+      <ErrorBlock {errors} />
     </form>
   </div>
   <section class="schedule-section">
@@ -96,8 +118,12 @@
         <li class="schedule-item">
           <div class="schedule-item__icon">
             {#if item.isCurrent !== 0}
-              <div class="icon">
-                <!-- todo, put some icon here signalling is current -->
+              <div
+                class="icon"
+                title="Is a current schedule"
+                aria-label="Is a current schedule"
+              >
+                <span aria-hidden="true">&#8902;</span>
               </div>
             {/if}
           </div>
@@ -143,6 +169,16 @@
       &::marker {
         color: var(--theme-colour);
       }
+
+      .icon {
+        color: var(--theme-colour);
+      }
+    }
+
+    &__icon {
+      display: inline-block;
+      font-size: 1.5rem;
+      cursor: default;
     }
   }
 

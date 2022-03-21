@@ -1,6 +1,6 @@
 import db from '$lib/database';
 import type { ITimeSlot } from '$lib/interfaces/ITimeSlot';
-import { fromBoolToBit } from '$lib/utils';
+import { fromBoolToBit, getRequestData, sendErrorResponse } from '$lib/utils';
 
 const SCHEDULE_FORM_TIMESLOT_PREPEND = 'eventOption_';
 
@@ -9,10 +9,7 @@ export async function get({ params }) {
   const item = db.prepare(`SELECT * FROM Schedule WHERE id = ?`).get(params.id);
 
   if (!item) {
-    return {
-      status: 404,
-      body: { errors: [`Schedule not found`] }
-    };
+    return sendErrorResponse(404, `Schedule not found`);
   }
 
   const slots = db
@@ -26,8 +23,7 @@ export async function get({ params }) {
 
 /** @type {import('./[id]').RequestHandler} */
 export async function put({ params, request }) {
-  const formData = await request.formData();
-  const data = Object.fromEntries(formData);
+  const data = await getRequestData(request);
 
   const scheduleId = params.id;
   const item = db
@@ -35,20 +31,22 @@ export async function put({ params, request }) {
     .get(scheduleId);
 
   if (!item) {
-    return {
-      status: 404,
-      body: { errors: [`Schedule not found`] }
-    };
+    return sendErrorResponse(404, `Schedule not found`);
   }
 
   if (!data.name || !data.name.trim()) {
-    return {
-      status: 400,
-      body: { errors: [`Schedule Name is required`] }
-    };
+    return sendErrorResponse(400, `Schedule Name is required`);
   }
 
   const name = data.name.trim();
+  const otherItemWithSameName = db
+    .prepare(`SELECT 1 FROM Schedule WHERE id <> @id AND name = @name`)
+    .get({ id: item.id, name });
+
+  if (otherItemWithSameName) {
+    return sendErrorResponse(400, `Schedule '${name}' already exists`);
+  }
+
   const isCurrent = fromBoolToBit(data.isCurrent);
   const info = db
     .prepare(
@@ -60,11 +58,7 @@ export async function put({ params, request }) {
     .run({ name, isCurrent, scheduleId });
 
   if (!info.changes) {
-    // return validation errors
-    return {
-      status: 500,
-      body: { errors: [`Update Schedule Failed`] }
-    };
+    return sendErrorResponse(500, `Update Schedule Failed`);
   }
 
   const slotKeys = Object.keys(data).filter((key) =>
@@ -110,11 +104,7 @@ export async function del({ params }) {
     .run(params.id);
 
   if (!scheduleInfo.changes || !slotsInfo.changes) {
-    // return validation errors
-    return {
-      status: 500,
-      body: { errors: [`Delete Schedule Failed`] }
-    };
+    return sendErrorResponse(500, `Delete Schedule Failed`);
   }
 
   return {

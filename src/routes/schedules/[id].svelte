@@ -44,10 +44,8 @@
 </script>
 
 <script lang="ts">
-  export let item: IScheduleWithSlots;
-  export let options: IActivity[];
-  export let blocks: IBlock[][];
-  export let isCurrent = !!item.isCurrent;
+  import { enhance } from '$lib/formEnhancer';
+  import ErrorBlock from '$lib/components/ErrorBlock.svelte';
 
   function getActivityColours(block: IBlock) {
     if (!block.activityId) {
@@ -60,6 +58,33 @@
 
     return `background-color: ${background}; color: ${colour};`;
   }
+
+  function onDone(result, form: HTMLFormElement) {
+    console.log('Result : ', result);
+    item = result.item;
+    blocks = Array.from(
+      item.slots
+        .reduce(reduceSlotsByHour, new Map<string, ITimeSlot[]>([]))
+        .values()
+    );
+    isCurrent = !!result.item.isCurrent;
+    errors = undefined;
+
+    submitSuccess = true;
+    window.setTimeout(() => (submitSuccess = false), 2000);
+  }
+
+  function onError(err: Error, form: HTMLFormElement) {
+    console.log('Error : ', err, err.message);
+    errors = JSON.parse(err.message).errors;
+  }
+
+  export let item: IScheduleWithSlots;
+  export let options: IActivity[];
+  export let blocks: IBlock[][];
+  export let isCurrent = !!item.isCurrent;
+  export let errors: string[];
+  let submitSuccess = false;
 
   // $: console.log('Schedule > ', item);
   // $: console.log('  Blocks > ', blocks);
@@ -77,6 +102,7 @@
   method="post"
   action="/schedules/{item.id}?_method=PUT"
   autocomplete="off"
+  use:enhance={{ done: onDone, error: onError }}
 >
   <div class="form">
     <label class="text-input">
@@ -105,6 +131,11 @@
     <div class="button-group">
       <button type="submit" class="button button--submit"> Update </button>
     </div>
+    {#if submitSuccess}
+      <div class="save-success">
+        <span aria-hidden="true">&#10003;</span> Saved!
+      </div>
+    {/if}
   </div>
   <div class="times">
     {#each blocks as slots}
@@ -144,8 +175,12 @@
   </div>
 </form>
 
+<ErrorBlock {errors} />
+<div style="flex: 1" />
+
 <form
   id="deleteSchedule"
+  class="delete-form"
   name="deleteSchedule"
   method="post"
   action="/schedules/{item.id}?_method=DELETE"
@@ -160,6 +195,11 @@
 
   .is-current {
     margin-right: 10px;
+  }
+
+  .save-success {
+    color: var(--success-colour, #0f0);
+    font-size: 1.25rem;
   }
 
   .times {
@@ -193,5 +233,9 @@
     &__option {
       color: var(--base-colour, #000);
     }
+  }
+
+  .delete-form {
+    margin-bottom: 5px;
   }
 </style>

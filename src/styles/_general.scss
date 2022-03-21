@@ -97,6 +97,6 @@ input {
   }
   &:checked::before {
     content: '\2611\FE0E';
-    color: var(--success-colour, var(--theme-colour, #0f0));
+    color: var(--theme-colour, #0f0);
   }
 }

@@ -6,6 +6,7 @@ import type {
   IScheduleWithSlotRanges
 } from '$lib/interfaces/ISchedule';
 import type { ISlot, ITimeSlotRange } from '$lib/interfaces/ITimeSlot';
+import { getRequestData, sendErrorResponse } from '$lib/utils';
 
 /** @type {import('@sveltejs/kit').RequestHandler} */
 export async function get({ url }) {
@@ -59,24 +60,16 @@ export async function get({ url }) {
 
 /** @type {import('@sveltejs/kit').RequestHandler} */
 export async function post({ request }) {
-  const formData = await request.formData();
-  const data = Object.fromEntries(formData);
+  const data = await getRequestData(request);
 
   if (!data.name || !data.name.trim()) {
-    return {
-      status: 400,
-      body: { errors: [`Schedule Name is required`] }
-    };
+    return sendErrorResponse(400, `Schedule Name is required`);
   }
 
   const name = data.name.trim();
   const item = db.prepare(`SELECT 1 FROM Schedule WHERE name = ?`).get(name);
   if (item) {
-    // todo send the user back
-    return {
-      status: 400,
-      body: { errors: [`Schedule '${name}' already exists`] }
-    };
+    return sendErrorResponse(400, `Schedule '${name}' already exists`);
   }
 
   const insertSchedule = db.prepare(
@@ -90,11 +83,7 @@ export async function post({ request }) {
   });
 
   if (!info.changes) {
-    // return validation errors
-    return {
-      status: 500,
-      body: { errors: [`Create Schedule Failed`] }
-    };
+    return sendErrorResponse(500, `Create Schedule Failed`);
   }
 
   const scheduleId = info.lastInsertRowid as number;

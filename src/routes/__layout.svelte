@@ -50,12 +50,14 @@
   }
 
   .app-page {
+    display: flex;
+    flex-direction: column;
     padding: 0 5px;
     min-height: calc(100vh - var(--top-bar-height));
   }
 
   .app-footer {
-    padding: 5px 10px;
+    padding: 5px;
     margin: 5px 0;
 
     &__break {
