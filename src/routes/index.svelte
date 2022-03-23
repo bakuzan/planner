@@ -45,6 +45,7 @@
   export let items: ISchedule[];
   export let currentItems: IScheduleWithSlotRanges[];
   export let errors: string[];
+  let cloneScheduleId = '';
   console.log('Home ... ', items, currentItems, errors);
 </script>
 
@@ -101,6 +102,32 @@
             required
           />
         </label>
+
+        <div class="select-input">
+          <label for="cloneScheduleId">Clone schedule</label>
+          <select
+            id="cloneScheduleId"
+            name="cloneScheduleId"
+            aria-label="Select a schedule to clone as a starting point"
+            class="schedule-selector"
+            bind:value={cloneScheduleId}
+          >
+            <option
+              class="schedule-selector__option"
+              value=""
+              selected={'' === cloneScheduleId}>None</option
+            >
+            {#each items as option}
+              <option
+                class="schedule-selector__option"
+                value={option.id}
+                selected={`${option.id}` === cloneScheduleId}
+              >
+                {option.name}
+              </option>
+            {/each}
+          </select>
+        </div>
 
         <div class="button-group">
           <button type="submit" class="button button--submit"

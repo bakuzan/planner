@@ -5,7 +5,11 @@ import type {
   ISchedule,
   IScheduleWithSlotRanges
 } from '$lib/interfaces/ISchedule';
-import type { ISlot, ITimeSlotRange } from '$lib/interfaces/ITimeSlot';
+import type {
+  ISlot,
+  ITimeSlot,
+  ITimeSlotRange
+} from '$lib/interfaces/ITimeSlot';
 import { getRequestData, sendErrorResponse } from '$lib/utils';
 
 /** @type {import('@sveltejs/kit').RequestHandler} */
@@ -97,7 +101,15 @@ export async function post({ request }) {
     }
   });
 
-  insertSlots(generateDefaultBlocks(scheduleId));
+  let cloneableSlots: ITimeSlot[] = [];
+  const cloneScheduleId = data.cloneScheduleId;
+  if (cloneScheduleId) {
+    cloneableSlots = db
+      .prepare(`SELECT * FROM TimeSlot WHERE scheduleId = ?`)
+      .all(cloneScheduleId);
+  }
+
+  insertSlots(generateDefaultBlocks(scheduleId, cloneableSlots));
 
   // redirect to the newly created item
   return {

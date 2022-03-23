@@ -29,7 +29,8 @@ a {
   }
 }
 
-input {
+input,
+select {
   border-color: var(--theme-colour);
   outline-color: var(--theme-colour);
 }
@@ -51,11 +52,18 @@ input {
   }
 }
 
-.text-input {
+.text-input,
+.select-input {
   display: inline-flex;
   flex-direction: column;
   width: fit-content;
   min-width: 300px;
+  margin-right: 5px;
+}
+
+.select-input select {
+  min-height: 30px;
+  border: 2px solid var(--theme-colour);
 }
 
 // checkbox
